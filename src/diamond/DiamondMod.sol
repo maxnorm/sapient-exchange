@@ -8,7 +8,7 @@ pragma solidity >=0.8.30;
  * (https://eips.ethereum.org/EIPS/eip-2535)
  */
 
-bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("erc8109.diamond");
+bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sapient.erc8109.diamond");
 bytes constant FUNCTION_SELECTORS_CALL = abi.encodeWithSignature(
     "functionSelectors()"
 );
@@ -93,8 +93,8 @@ event DiamondMetadata(bytes32 indexed _tag, bytes _data);
  */
 struct FacetNode {
     address facet;
-    bytes4 prevFacetSelector;
-    bytes4 nextFacetSelector;
+    bytes4 prevFacetNodeId;
+    bytes4 nextFacetNodeId;
 }
 
 /**
@@ -105,8 +105,9 @@ struct FacetNode {
  */
 struct FacetList {
     uint32 facetCount;
-    bytes4 firstFacetSelector;
-    bytes4 lastFacetSelector;
+    uint32 selectorCount;
+    bytes4 firstFacetNodeId;
+    bytes4 lastFacetNodeId;
 }
 
 /**
@@ -133,7 +134,7 @@ function getStorage() pure returns (DiamondStorage storage s) {
 }
 
 // ========================================================
-// Fallback Function (Diamond Entry Point)
+// Fallback Function (Diamond EntryPoint)
 // ========================================================
 
 /**
@@ -169,6 +170,8 @@ function diamondFallback() {
     }
 }
 
+// ========================================================
+
 /**
  * @notice Returns the function selectors for a given facet.
  * @param _facet The facet address.
@@ -200,18 +203,19 @@ function functionSelectors(address _facet) view returns (bytes4[] memory) {
 
 /**
  * @notice Adds facets and their function selectors to the diamond.
+ * @param _facets The facets to add.
  */
 function addFacets(address[] memory _facets) {
     uint256 facetsLength = _facets.length;
 
     if (facetsLength == 0) {
-        revert NoFacetsToAdd();
+        return;
     }
 
     DiamondStorage storage s = getStorage();
     FacetList memory facetList = s.facetList;
 
-    bytes4 prev = facetList.lastFacetSelector;
+    bytes4 prev = facetList.lastFacetNodeId;
     bytes4 current;
 
     /* Add each facet to the diamond */
@@ -221,9 +225,9 @@ function addFacets(address[] memory _facets) {
         current = currentSelectors[0];
 
         if (i == 0 && facetList.facetCount == 0) {
-            facetList.firstFacetSelector = current;
+            facetList.firstFacetNodeId = current;
         } else {
-            s.facetNodes[prev].nextFacetSelector = current;
+            s.facetNodes[prev].nextFacetNodeId = current;
         }
 
         /* Add each selector to the diamond */
@@ -249,7 +253,7 @@ function addFacets(address[] memory _facets) {
     unchecked {
         facetList.facetCount += uint32(facetsLength);
     }
-    facetList.lastFacetSelector = current;
+    facetList.lastFacetNodeId = current;
     s.facetList = facetList;
 }
 
@@ -280,8 +284,8 @@ function replaceFacets(FacetReplacement[] calldata _replaceFacets) {
             revert FacetToReplaceDoesNotExist(oldFacet);
         }
 
-        bytes4 prevSelector = firstFacetNode.prevFacetSelector;
-        bytes4 nextSelector = firstFacetNode.nextFacetSelector;
+        bytes4 prevSelector = firstFacetNode.prevFacetNodeId;
+        bytes4 nextSelector = firstFacetNode.nextFacetNodeId;
 
         /* Set the facet node for the new selector. */
         s.facetNodes[newSelector] = FacetNode(
@@ -292,16 +296,16 @@ function replaceFacets(FacetReplacement[] calldata _replaceFacets) {
 
         /* Adjust facet list if needed and emit appropriate function event */
         if (oldSelector != newSelector) {
-            if (oldSelector == facetList.firstFacetSelector) {
-                facetList.firstFacetSelector = newSelector;
+            if (oldSelector == facetList.firstFacetNodeId) {
+                facetList.firstFacetNodeId = newSelector;
             } else {
-                s.facetNodes[prevSelector].nextFacetSelector = newSelector;
+                s.facetNodes[prevSelector].nextFacetNodeId = newSelector;
             }
 
-            if (oldSelector == facetList.lastFacetSelector) {
-                facetList.lastFacetSelector = newSelector;
+            if (oldSelector == facetList.lastFacetNodeId) {
+                facetList.lastFacetNodeId = newSelector;
             } else {
-                s.facetNodes[nextSelector].prevFacetSelector = newSelector;
+                s.facetNodes[nextSelector].prevFacetNodeId = newSelector;
             }
 
             delete s.facetNodes[oldSelector];
@@ -347,6 +351,11 @@ function replaceFacets(FacetReplacement[] calldata _replaceFacets) {
     s.facetList = facetList;
 }
 
+
+/**
+ * @notice Removes facets from the diamond.
+ * @param _facets The facets to remove.
+ */
 function removeFacets(address[] calldata _facets) {
     DiamondStorage storage s = getStorage();
     FacetList memory facetList = s.facetList;
@@ -361,19 +370,17 @@ function removeFacets(address[] calldata _facets) {
         /**
          * Remove the facet from the linked list.
          */
-        bytes4 nextSelector = facetNode.nextFacetSelector;
-        bytes4 prevSelector = facetNode.prevFacetSelector;
-        if (currentSelector == facetList.firstFacetSelector) {
-            facetList.firstFacetSelector = nextSelector;
+        bytes4 nextSelector = facetNode.nextFacetNodeId;
+        bytes4 prevSelector = facetNode.prevFacetNodeId;
+        if (currentSelector == facetList.firstFacetNodeId) {
+            facetList.firstFacetNodeId = nextSelector;
         } else {
-            s
-                .facetNodes[facetNode.prevFacetSelector]
-                .nextFacetSelector = nextSelector;
+            s.facetNodes[facetNode.prevFacetNodeId].nextFacetNodeId = nextSelector;
         }
-        if (currentSelector == facetList.lastFacetSelector) {
-            facetList.lastFacetSelector = prevSelector;
+        if (currentSelector == facetList.lastFacetNodeId) {
+            facetList.lastFacetNodeId = prevSelector;
         } else {
-            s.facetNodes[nextSelector].prevFacetSelector = prevSelector;
+            s.facetNodes[nextSelector].prevFacetNodeId = prevSelector;
         }
         /**
          * Remove facet selectors.

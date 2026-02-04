@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.30;
 
-import "../modules/DiamondMod.sol" as DiamondMod;
+import "./DiamondMod.sol" as DiamondMod;
 
 contract DiamondUpgradeFacet {
   /**
