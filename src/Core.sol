@@ -2,6 +2,8 @@
 pragma solidity >=0.8.30;
 
 import "./diamond/modules/DiamondMod.sol" as DiamondMod;
+import {initOwner} from "./access/modules/OwnerMod.sol";
+import {addFacets} from "./diamond/modules/DiamondUpgradeMod.sol";
 
 /**
  * @title Core
@@ -15,7 +17,11 @@ contract Core {
    * @param _facets The facets to initialize the diamond with.
    */
   constructor(address[] memory _facets) {
-      
+    //#TODO: Add facets here
+    addFacets(_facets);
+    
+    //#TODO: Set owner here
+    initOwner(msg.sender);
   }
 
   fallback() external payable {

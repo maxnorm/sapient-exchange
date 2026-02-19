@@ -2,7 +2,7 @@
 pragma solidity >=0.8.30;
 
 import {IFacet} from "../interfaces/IFacet.sol";
-import {getOwnerStorage, requireOwner, OwnerUnauthorizedAccount} from "./modules/OwnerMod.sol";
+import {getOwnerStorage, requireOwner, OwnerUnauthorizedAccount, OwnerStorage} from "./modules/OwnerMod.sol";
 
 /**
  *  @title ERC-173 Contract Ownership
@@ -52,9 +52,9 @@ contract OwnerFacet is IFacet {
 
     function exportSelectors() external pure returns (bytes memory) {
         return bytes.concat(
-          this.owner.selector,
-          this.transferOwnership.selector,
-          this.renounceOwnership.selector,
+          OwnerFacet.owner.selector,
+          OwnerFacet.transferOwnership.selector,
+          OwnerFacet.renounceOwnership.selector
         );
     }
 }

@@ -70,10 +70,10 @@ contract DiamondInspectFacet is IFacet {
 
     function exportSelectors() external pure returns (bytes memory) {
         return bytes.concat(
-            this.facetAddress.selector,
-            this.facetFunctionSelectors.selector,
-            this.facetAddresses.selector,
-            this.facets.selector,
+            DiamondInspectFacet.facetAddress.selector,
+            DiamondInspectFacet.facetFunctionSelectors.selector,
+            DiamondInspectFacet.facetAddresses.selector,
+            DiamondInspectFacet.facets.selector
         );
     }
 }

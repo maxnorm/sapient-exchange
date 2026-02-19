@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.30;
 
-/** 
- * @title Owner Module
- * @notice Provides internal functions and storage layout for owner management.
- * @dev Follows EIP-173 Contract Ownership Standard
- */
+
+/*
+* @title Owner Module
+* @notice Provides internal functions and storage layout for owner management.
+* @dev Follows EIP-173 Contract Ownership Standard.
+*/
 
 bytes32 constant OWNER_STORAGE_POSITION = keccak256("sapient.owner");
 
@@ -40,4 +41,22 @@ function requireOwner()  view {
   if (msg.sender != getOwnerStorage().owner) {
     revert OwnerUnauthorizedAccount();
   }
+}
+
+
+/**
+ * @notice Thrown when the owner is already initialized
+ */
+error OwnerAlreadyInitialized();
+
+/**
+ * @notice Initializes the owner of the contract
+ * @param _owner The address of the new owner
+ */
+function initOwner(address _owner) {
+  OwnerStorage storage s = getOwnerStorage();
+  if (s.owner != address(0)) {
+    revert OwnerAlreadyInitialized();
+  }
+  s.owner = _owner;
 }

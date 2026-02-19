@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.30;
 
-/**
- * @title DiamondInspectMod
- * @notice Module for inspecting the diamond.
- * @dev Contains functions for inspecting the diamond.
- */
-
+/*
+* @title DiamondInspectMod
+* @notice Module for inspecting the diamond.
+* @dev Provides functions for inspecting the diamond.
+*/
+    
 /**
  * @notice Data for each facet
  * @dev Address and function selectors
