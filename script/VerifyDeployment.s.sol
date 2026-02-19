@@ -16,8 +16,10 @@ interface IDiamondVerify {
  */
 contract VerifyDeployment is Script {
     // From broadcast/Deploy.s.sol/31337/run-latest.json
-    address constant DIAMOND = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9;
-    address constant OWNER_FACET = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+    // #TODO: Replace the diamond address here
+    address constant DIAMOND = 0x0000000000000000000000000000000000000000;
+    // #TODO: Replace the owner facet address here
+    address constant OWNER_FACET = 0x0000000000000000000000000000000000000000;
 
     function run() public view {
         IDiamondVerify diamond = IDiamondVerify(DIAMOND);
