@@ -10,7 +10,7 @@ import {addFacets} from "./diamond/modules/DiamondUpgradeMod.sol";
  * @notice This contract is the Core entry point for the project
  * @dev The Core contract is the Diamond Based System Core
  */
-contract Core {
+contract Diamond {
     /**
      * @notice Initializes the diamond contract with facets, owner and other data.
      * @param _facets The facets to initialize the diamond with.
