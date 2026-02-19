@@ -1,66 +1,47 @@
-## Foundry
+# Sapient Exchange
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Sapient Exchange is a decentralized exchange (DEX) that allows users to trade cryptocurrencies. 
 
-Foundry consists of:
+It is built on top of the Facet-Based Diamond System. ([EIP-8153](https://eips.ethereum.org/EIPS/eip-8153))
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+**Docs:** [compose.diamonds](https://compose.diamonds) · [Foundry book](https://book.getfoundry.sh/)
 
-## Documentation
+## Prerequisites
 
-https://book.getfoundry.sh/
+[Foundry](https://book.getfoundry.sh/getting-started/installation) (forge, anvil).
 
-## Usage
+## Quick start
 
-### Build
-
-```shell
-$ forge build
+```bash
+git clone <repo> && cd sapient-exchange
+forge build
+forge test
 ```
 
-### Test
+## Commands
 
-```shell
-$ forge test
-```
+```bash
+# Build
+forge build
 
-### Format
+# Test
+forge test
 
-```shell
-$ forge fmt
-```
+# Format
+forge fmt
 
-### Gas Snapshots
+# Gas snapshots
+forge snapshot
 
-```shell
-$ forge snapshot
-```
+# Local node (run in another terminal for local deploy)
+anvil
 
-### Anvil
+# Deploy (local: start anvil first)
+forge script script/Deploy.s.sol:DiamondDeployScript --rpc-url http://127.0.0.1:8545 --broadcast
 
-```shell
-$ anvil
-```
+# Deploy (live)
+forge script script/Deploy.s.sol:DiamondDeployScript --rpc-url <RPC_URL> --private-key <PRIVATE_KEY> --broadcast
 
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+# Verify deployment (read-only)
+forge script script/VerifyDeployment.s.sol:VerifyDeployment --rpc-url <RPC_URL>
 ```
