@@ -11,22 +11,21 @@ import {addFacets} from "./diamond/modules/DiamondUpgradeMod.sol";
  * @dev The Core contract is the Diamond Based System Core
  */
 contract Core {
+    /**
+     * @notice Initializes the diamond contract with facets, owner and other data.
+     * @param _facets The facets to initialize the diamond with.
+     */
+    constructor(address[] memory _facets) {
+        //#TODO: Add facets here
+        addFacets(_facets);
 
-  /**
-   * @notice Initializes the diamond contract with facets, owner and other data.
-   * @param _facets The facets to initialize the diamond with.
-   */
-  constructor(address[] memory _facets) {
-    //#TODO: Add facets here
-    addFacets(_facets);
-    
-    //#TODO: Set owner here
-    initOwner(msg.sender);
-  }
+        //#TODO: Set owner here
+        initOwner(msg.sender);
+    }
 
-  fallback() external payable {
-    DiamondMod.diamondFallback();
-  }
+    fallback() external payable {
+        DiamondMod.diamondFallback();
+    }
 
-  receive() external payable {}
+    receive() external payable {}
 }

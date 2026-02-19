@@ -3,7 +3,14 @@ pragma solidity >=0.8.30;
 
 import {IFacet} from "../interfaces/IFacet.sol";
 import {DiamondStorage, FacetList, FacetNode, getDiamondStorage} from "./modules/DiamondMod.sol";
-import {importSelectors, at, addFacets, replaceFacets, removeFacets, FacetReplacement} from "./modules/DiamondUpgradeMod.sol";
+import {
+    importSelectors,
+    at,
+    addFacets,
+    replaceFacets,
+    removeFacets,
+    FacetReplacement
+} from "./modules/DiamondUpgradeMod.sol";
 import {requireOwner} from "../access/modules/OwnerMod.sol";
 
 /**
@@ -17,7 +24,6 @@ import {requireOwner} from "../access/modules/OwnerMod.sol";
  */
 
 contract DiamondUpgradeFacet is IFacet {
-
     /**
      * @notice Emitted when a diamond's constructor function or function from a
      *         facet makes a `delegatecall`.
@@ -84,7 +90,7 @@ contract DiamondUpgradeFacet is IFacet {
         bytes calldata _metadata
     ) external {
         requireOwner();
-    
+
         addFacets(_addFacets);
         replaceFacets(_replaceFacets);
         removeFacets(_removeFacets);
@@ -113,8 +119,6 @@ contract DiamondUpgradeFacet is IFacet {
     }
 
     function exportSelectors() external pure returns (bytes memory) {
-        return bytes.concat(
-            DiamondUpgradeFacet.upgradeDiamond.selector
-        );
+        return bytes.concat(DiamondUpgradeFacet.upgradeDiamond.selector);
     }
 }

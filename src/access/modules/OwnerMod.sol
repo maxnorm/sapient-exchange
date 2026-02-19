@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.30;
 
-
 /*
 * @title Owner Module
 * @notice Provides internal functions and storage layout for owner management.
@@ -14,7 +13,7 @@ bytes32 constant OWNER_STORAGE_POSITION = keccak256("sapient.owner");
  * @custom:storage-location erc8042:sapient.owner
  */
 struct OwnerStorage {
-  address owner;
+    address owner;
 }
 
 /**
@@ -23,10 +22,10 @@ struct OwnerStorage {
  * @return s The OwnerStorage struct in storage.
  */
 function getOwnerStorage() pure returns (OwnerStorage storage s) {
-  bytes32 position = OWNER_STORAGE_POSITION;
-  assembly {
-    s.slot := position
-  }
+    bytes32 position = OWNER_STORAGE_POSITION;
+    assembly {
+        s.slot := position
+    }
 }
 
 /**
@@ -37,12 +36,11 @@ error OwnerUnauthorizedAccount();
 /**
  * @notice Requires the caller to be the owner of the contract
  */
-function requireOwner()  view {
-  if (msg.sender != getOwnerStorage().owner) {
-    revert OwnerUnauthorizedAccount();
-  }
+function requireOwner() view {
+    if (msg.sender != getOwnerStorage().owner) {
+        revert OwnerUnauthorizedAccount();
+    }
 }
-
 
 /**
  * @notice Thrown when the owner is already initialized
@@ -54,9 +52,9 @@ error OwnerAlreadyInitialized();
  * @param _owner The address of the new owner
  */
 function initOwner(address _owner) {
-  OwnerStorage storage s = getOwnerStorage();
-  if (s.owner != address(0)) {
-    revert OwnerAlreadyInitialized();
-  }
-  s.owner = _owner;
+    OwnerStorage storage s = getOwnerStorage();
+    if (s.owner != address(0)) {
+        revert OwnerAlreadyInitialized();
+    }
+    s.owner = _owner;
 }

@@ -71,12 +71,7 @@ pragma solidity >=0.8.30;
  */
 
 import {IFacet} from "../../interfaces/IFacet.sol";
-import {
-    DiamondStorage,
-    FacetList,
-    FacetNode,
-    getDiamondStorage
-} from "./DiamondMod.sol";
+import {DiamondStorage, FacetList, FacetNode, getDiamondStorage} from "./DiamondMod.sol";
 
 /**
  * @notice Emitted when a facet is added to a diamond.
@@ -133,9 +128,7 @@ error CannotRemoveFacetThatDoesNotExist(address _facet);
  * @return selectors The packed selectors.
  */
 function importSelectors(address _facet) view returns (bytes memory selectors) {
-    (bool success, bytes memory data) = _facet.staticcall(
-        abi.encodeWithSelector(IFacet.exportSelectors.selector)
-    );
+    (bool success, bytes memory data) = _facet.staticcall(abi.encodeWithSelector(IFacet.exportSelectors.selector));
     if (success == false) {
         revert ExportSelectorsCallFailed(_facet);
     }
@@ -198,10 +191,7 @@ function importSelectors(address _facet) view returns (bytes memory selectors) {
  * @param index The index of the selector.
  * @return selector The 4 bytes selector.
  */
-function at(
-    bytes memory selectors,
-    uint256 index
-) pure returns (bytes4 selector) {
+function at(bytes memory selectors, uint256 index) pure returns (bytes4 selector) {
     assembly ("memory-safe") {
         /**
          * 1. Calculate Pointer
@@ -282,11 +272,7 @@ function addFacets(address[] memory _facets) {
     /*
      * Add all selectors, except the first, to the diamond.
      */
-    for (
-        uint256 selectorIndex = 1;
-        selectorIndex < selectorsLength;
-        selectorIndex++
-    ) {
+    for (uint256 selectorIndex = 1; selectorIndex < selectorsLength; selectorIndex++) {
         bytes4 selector = at(selectors, selectorIndex);
         if (s.facetNodes[selector].facet != address(0)) {
             revert CannotAddFunctionToDiamondThatAlreadyExists(selector);
@@ -316,9 +302,7 @@ function addFacets(address[] memory _facets) {
          * Check to see if the PENDING first selector (from previous iteration) already exists in the diamond.
          */
         if (s.facetNodes[currentFacetNodeId].facet != address(0)) {
-            revert CannotAddFunctionToDiamondThatAlreadyExists(
-                currentFacetNodeId
-            );
+            revert CannotAddFunctionToDiamondThatAlreadyExists(currentFacetNodeId);
         }
         /*
          * Identify the link to the next facet
@@ -327,11 +311,7 @@ function addFacets(address[] memory _facets) {
         /*
          * Store the previous facet's first selector.
          */
-        s.facetNodes[currentFacetNodeId] = FacetNode(
-            facet,
-            prevFacetNodeId,
-            nextFacetNodeId
-        );
+        s.facetNodes[currentFacetNodeId] = FacetNode(facet, prevFacetNodeId, nextFacetNodeId);
         emit FacetAdded(facet);
         /*
          * Move pointers forward.
@@ -350,11 +330,7 @@ function addFacets(address[] memory _facets) {
         /*
          * Add all the selectors of the facet to the diamond, except the first selector.
          */
-        for (
-            uint256 selectorIndex = 1;
-            selectorIndex < selectorsLength;
-            selectorIndex++
-        ) {
+        for (uint256 selectorIndex = 1; selectorIndex < selectorsLength; selectorIndex++) {
             bytes4 selector = at(selectors, selectorIndex);
             if (s.facetNodes[selector].facet != address(0)) {
                 revert CannotAddFunctionToDiamondThatAlreadyExists(selector);
@@ -377,11 +353,7 @@ function addFacets(address[] memory _facets) {
     if (s.facetNodes[currentFacetNodeId].facet != address(0)) {
         revert CannotAddFunctionToDiamondThatAlreadyExists(currentFacetNodeId);
     }
-    s.facetNodes[currentFacetNodeId] = FacetNode(
-        facet,
-        prevFacetNodeId,
-        bytes4(0)
-    );
+    s.facetNodes[currentFacetNodeId] = FacetNode(facet, prevFacetNodeId, bytes4(0));
     emit FacetAdded(facet);
     facetList.facetCount += uint32(facetLength);
 
@@ -441,41 +413,29 @@ function replaceFacets(FacetReplacement[] calldata _replaceFacets) {
                     facetList.selectorCount++;
                 }
             } else if (existingFacet != oldFacet) {
-                revert CannotReplaceFunctionFromNonReplacementFacet(
-                    newCurrentFacetNodeId
-                );
+                revert CannotReplaceFunctionFromNonReplacementFacet(newCurrentFacetNodeId);
             }
-            s.facetNodes[newCurrentFacetNodeId] = FacetNode(
-                newFacet,
-                oldFacetNode.prevFacetNodeId,
-                oldFacetNode.nextFacetNodeId
-            );
+            s.facetNodes[newCurrentFacetNodeId] =
+                FacetNode(newFacet, oldFacetNode.prevFacetNodeId, oldFacetNode.nextFacetNodeId);
             /**
              * Update linked list.
              */
             if (oldCurrentFacetNodeId == facetList.headFacetNodeId) {
                 facetList.headFacetNodeId = newCurrentFacetNodeId;
             } else {
-                s
-                    .facetNodes[oldFacetNode.prevFacetNodeId]
-                    .nextFacetNodeId = newCurrentFacetNodeId;
+                s.facetNodes[oldFacetNode.prevFacetNodeId].nextFacetNodeId = newCurrentFacetNodeId;
             }
             if (oldCurrentFacetNodeId == facetList.tailFacetNodeId) {
                 facetList.tailFacetNodeId = newCurrentFacetNodeId;
             } else {
-                s
-                    .facetNodes[oldFacetNode.nextFacetNodeId]
-                    .prevFacetNodeId = newCurrentFacetNodeId;
+                s.facetNodes[oldFacetNode.nextFacetNodeId].prevFacetNodeId = newCurrentFacetNodeId;
             }
         } else {
             /**
              * Same first selector, just replace in place.
              */
-            s.facetNodes[newCurrentFacetNodeId] = FacetNode(
-                newFacet,
-                oldFacetNode.prevFacetNodeId,
-                oldFacetNode.nextFacetNodeId
-            );
+            s.facetNodes[newCurrentFacetNodeId] =
+                FacetNode(newFacet, oldFacetNode.prevFacetNodeId, oldFacetNode.nextFacetNodeId);
             /*
              * If the selectors are same from both facets, then we can safely and very efficiently
              * replace the old facet address with the new facet address for all the selctors.
@@ -484,17 +444,9 @@ function replaceFacets(FacetReplacement[] calldata _replaceFacets) {
                 /**
                  * Replace remaining selectors.
                  */
-                for (
-                    uint256 selectorIndex = 1;
-                    selectorIndex < selectorsLength;
-                    selectorIndex++
-                ) {
+                for (uint256 selectorIndex = 1; selectorIndex < selectorsLength; selectorIndex++) {
                     bytes4 selector = at(newSelectors, selectorIndex);
-                    s.facetNodes[selector] = FacetNode(
-                        newFacet,
-                        bytes4(0),
-                        bytes4(0)
-                    );
+                    s.facetNodes[selector] = FacetNode(newFacet, bytes4(0), bytes4(0));
                 }
                 emit FacetReplaced(oldFacet, newFacet);
                 /*
@@ -510,11 +462,7 @@ function replaceFacets(FacetReplacement[] calldata _replaceFacets) {
         /**
          * Add or replace new selectors.
          */
-        for (
-            uint256 selectorIndex = 1;
-            selectorIndex < selectorsLength;
-            selectorIndex++
-        ) {
+        for (uint256 selectorIndex = 1; selectorIndex < selectorsLength; selectorIndex++) {
             bytes4 selector = at(newSelectors, selectorIndex);
             address existingFacet = s.facetNodes[selector].facet;
             if (existingFacet == address(0)) {
@@ -533,11 +481,7 @@ function replaceFacets(FacetReplacement[] calldata _replaceFacets) {
          * We do this to get the number of selectors.
          */
         selectorsLength = oldSelectors.length >> 2;
-        for (
-            uint256 selectorIndex;
-            selectorIndex < selectorsLength;
-            selectorIndex++
-        ) {
+        for (uint256 selectorIndex; selectorIndex < selectorsLength; selectorIndex++) {
             bytes4 selector = at(oldSelectors, selectorIndex);
             address existingFacet = s.facetNodes[selector].facet;
             if (existingFacet == oldFacet) {
@@ -587,14 +531,12 @@ function removeFacets(address[] calldata _facets) {
         if (currentFacetNodeId == facetList.headFacetNodeId) {
             facetList.headFacetNodeId = facetNode.nextFacetNodeId;
         } else {
-            s.facetNodes[facetNode.prevFacetNodeId].nextFacetNodeId = facetNode
-                .nextFacetNodeId;
+            s.facetNodes[facetNode.prevFacetNodeId].nextFacetNodeId = facetNode.nextFacetNodeId;
         }
         if (currentFacetNodeId == facetList.tailFacetNodeId) {
             facetList.tailFacetNodeId = facetNode.prevFacetNodeId;
         } else {
-            s.facetNodes[facetNode.nextFacetNodeId].prevFacetNodeId = facetNode
-                .prevFacetNodeId;
+            s.facetNodes[facetNode.nextFacetNodeId].prevFacetNodeId = facetNode.prevFacetNodeId;
         }
         /*
          * Shift right by 2 is the same as dividing by 4, but cheaper.
@@ -607,11 +549,7 @@ function removeFacets(address[] calldata _facets) {
          * immutable from the facet and we trust that, we can safely remove the selectors without
          * checking that each selector belongs to the facet being removed. We know it does.
          */
-        for (
-            uint256 selectorIndex;
-            selectorIndex < selectorsLength;
-            selectorIndex++
-        ) {
+        for (uint256 selectorIndex; selectorIndex < selectorsLength; selectorIndex++) {
             bytes4 selector = at(selectors, selectorIndex);
             delete s.facetNodes[selector];
         }

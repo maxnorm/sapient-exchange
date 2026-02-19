@@ -52,9 +52,7 @@ contract OwnerFacet is IFacet {
 
     function exportSelectors() external pure returns (bytes memory) {
         return bytes.concat(
-          OwnerFacet.owner.selector,
-          OwnerFacet.transferOwnership.selector,
-          OwnerFacet.renounceOwnership.selector
+            OwnerFacet.owner.selector, OwnerFacet.transferOwnership.selector, OwnerFacet.renounceOwnership.selector
         );
     }
 }
