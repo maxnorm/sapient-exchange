@@ -2,13 +2,13 @@
 pragma solidity >=0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {Core} from "../src/Core.sol";
+import {Diamond} from "../src/Diamond.sol";
 import {OwnerFacet} from "../src/access/OwnerFacet.sol";
 import {DiamondInspectFacet} from "../src/diamond/DiamondInspectFacet.sol";
 import {DiamondUpgradeFacet} from "../src/diamond/DiamondUpgradeFacet.sol";
 
-contract CoreTest is Test {
-    Core public core;
+contract diamondTest is Test {
+    Diamond public diamond;
     OwnerFacet public ownerFacet;
     DiamondInspectFacet public diamondInspectFacet;
     DiamondUpgradeFacet public diamondUpgradeFacet;
@@ -29,31 +29,31 @@ contract CoreTest is Test {
         facets[1] = address(diamondInspectFacet);
         facets[2] = address(diamondUpgradeFacet);
 
-        core = new Core(facets);
+        diamond = new Diamond(facets);
     }
 
     function test_OwnerIsDeployer() public view {
-        assertEq(OwnerFacet(address(core)).owner(), deployer);
+        assertEq(OwnerFacet(address(diamond)).owner(), deployer);
     }
 
     function test_TransferOwnership() public {
-        OwnerFacet(address(core)).transferOwnership(other);
-        assertEq(OwnerFacet(address(core)).owner(), other);
+        OwnerFacet(address(diamond)).transferOwnership(other);
+        assertEq(OwnerFacet(address(diamond)).owner(), other);
     }
 
     function test_RevertWhen_NonOwnerTransfersOwnership() public {
         vm.prank(other);
         vm.expectRevert();
-        OwnerFacet(address(core)).transferOwnership(other);
+        OwnerFacet(address(diamond)).transferOwnership(other);
     }
 
     function test_RenounceOwnership() public {
-        OwnerFacet(address(core)).renounceOwnership();
-        assertEq(OwnerFacet(address(core)).owner(), address(0));
+        OwnerFacet(address(diamond)).renounceOwnership();
+        assertEq(OwnerFacet(address(diamond)).owner(), address(0));
     }
 
     function test_FacetAddresses() public view {
-        address[] memory facets_ = DiamondInspectFacet(address(core)).facetAddresses();
+        address[] memory facets_ = DiamondInspectFacet(address(diamond)).facetAddresses();
         assertEq(facets_.length, 3);
         assertEq(facets_[0], address(ownerFacet));
         assertEq(facets_[1], address(diamondInspectFacet));
@@ -61,8 +61,8 @@ contract CoreTest is Test {
     }
 
     function test_ReceiveEth() public {
-        (bool ok,) = address(core).call{value: 1 ether}("");
+        (bool ok,) = address(diamond).call{value: 1 ether}("");
         assertTrue(ok);
-        assertEq(address(core).balance, 1 ether);
+        assertEq(address(diamond).balance, 1 ether);
     }
 }
